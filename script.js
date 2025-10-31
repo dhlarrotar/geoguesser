@@ -121,6 +121,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         el.textContent = translations[lang][key];
                     }
                 });
+                
+                // Update description meta tag
+                const description = translations[lang].welcomeSubtitle;
+                document.querySelector('meta[name="description"]').setAttribute('content', description);
+                document.querySelector('meta[property="og:description"]').setAttribute('content', description);
+                document.querySelector('meta[name="twitter:description"]').setAttribute('content', description);
+                document.querySelector('meta[property="og:title"]').setAttribute('content', translations[lang].title);
+                document.querySelector('meta[name="twitter:title"]').setAttribute('content', translations[lang].title);
+
 
                 // Update titles
                 document.title = translations[lang].title;
@@ -279,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 {code: "MK", name: "North Macedonia", name_es: "Macedonia del Norte", name_fr: "Macédoine du Nord"},
                 {code: "ML", name: "Mali", name_es: "Malí", name_fr: "Mali"},
                 {code: "MM", name: "Myanmar", name_es: "Myanmar", name_fr: "Myanmar"},
-                {code: "ME", name: "Montenegro", name_es: "Montenegro", name_fr: "Monténégro"},
+                {code: "ME", name: "Montenegro", name_es: "Monténégro", name_fr: "Monténégro"},
                 {code: "MN", name: "Mongolia", name_es: "Mongolia", name_fr: "Mongolie"},
                 {code: "MZ", name: "Mozambique", name_es: "Mozambique", name_fr: "Mozambique"},
                 {code: "MR", name: "Mauritania", name_es: "Mauritania", name_fr: "Mauritanie"},
@@ -649,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     if (navigator.share) {
                         await navigator.share({
-                            title: 'Geo-Guesser Score',
+                            title: translations[currentLang].title,
                             text: shareText,
                             url: window.location.href
                         });
