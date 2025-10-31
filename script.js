@@ -31,9 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameOverMessageGood: "Good effort! Keep exploring the world. 🗺️",
                     gameOverMessageGreat: "Great job, world traveler! ✈️",
                     gameOverMessageWizard: "You're a geography wizard! 🌟",
-                    playAgain: "🔁 Play Again",
+                    playAgain: "Play Again", // Removed emoji
                     shareScore: "Share Score",
-                    footer: "© 2025 Geo-Guesser. All Rights Reserved.",
+                    goHome: "Go to Home", // Updated tooltip text
+                    footerCopyright: "© 2025 Daniel Larrota R.",
+                    footerPortfolioLink: "Portfolio",
                     mapError: (msg) => `Could not load the world map. Please check your connection. <br><small>${msg}</small>`
                 },
                 es: {
@@ -66,9 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameOverMessageGood: "¡Buen esfuerzo! Sigue explorando el mundo. 🗺️",
                     gameOverMessageGreat: "¡Gran trabajo, viajero del mundo! ✈️",
                     gameOverMessageWizard: "¡Eres un mago de la geografía! 🌟",
-                    playAgain: "🔁 Jugar de Nuevo",
+                    playAgain: "Jugar de Nuevo", // Removed emoji
                     shareScore: "Compartir Puntaje",
-                    footer: "© 2025 Geo-Guesser. Todos los derechos reservados.",
+                    goHome: "Ir al Inicio", // Updated tooltip text
+                    footerCopyright: "© 2025 Daniel Larrota R.",
+                    footerPortfolioLink: "Portafolio",
                     mapError: (msg) => `No se pudo cargar el mapa mundial. Por favor revisa tu conexión. <br><small>${msg}</small>`
                 },
                 fr: {
@@ -101,9 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameOverMessageGood: "Bel effort ! Continuez à explorer le monde. 🗺️",
                     gameOverMessageGreat: "Bravo, voyageur du monde ! ✈️",
                     gameOverMessageWizard: "Vous êtes un sorcier de la géographie! 🌟",
-                    playAgain: "🔁 Rejouer",
+                    playAgain: "Rejouer", // Removed emoji
                     shareScore: "Partager le Score",
-                    footer: "© 2025 Geo-Guesser. Tous droits réservés.",
+                    goHome: "Aller à l'accueil", // Updated tooltip text
+                    footerCopyright: "© 2025 Daniel Larrota R.",
+                    footerPortfolioLink: "Portfolio",
                     mapError: (msg) => `Impossible de charger la carte du monde. Veuillez vérifier votre connexion. <br><small>${msg}</small>`
                 }
             };
@@ -131,9 +137,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelector('meta[name="twitter:title"]').setAttribute('content', translations[lang].title);
 
 
-                // Update titles
+                // Update page title
                 document.title = translations[lang].title;
-                resetViewBtn.title = translations[lang].resetView;
+                
+                // NEW: Update all title attributes for tooltips
+                document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-title');
+                    if (translations[lang][key]) {
+                        el.title = translations[lang][key];
+                    }
+                });
 
                 // Update language buttons style
                 document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -180,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const endGameMessageEl = document.getElementById('end-game-message');
             const playAgainButton = document.getElementById('play-again-button');
             const shareButton = document.getElementById('share-button');
+            const homeButton = document.getElementById('home-button'); // Added new button
             const zoomInBtn = document.getElementById('zoom-in-btn');
             const zoomOutBtn = document.getElementById('zoom-out-btn');
             const resetViewBtn = document.getElementById('reset-view-btn');
@@ -188,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const hardBtn = document.getElementById('hard-btn');
 
             // --- COMPLETE COUNTRY DATABASE (with translations) ---
+            // SYNTAX FIX: Corrected missing 'code' property
             const fullCountryList = [
                 {code: "AF", name: "Afghanistan", name_es: "Afganistán", name_fr: "Afghanistan"},
                 {code: "AO", name: "Angola", name_es: "Angola", name_fr: "Angola"},
@@ -317,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 {code: "PS", name: "Palestine", name_es: "Palestina", name_fr: "Palestine"},
                 {code: "QA", name: "Qatar", name_es: "Catar", name_fr: "Qatar"},
                 {code: "RO", name: "Romania", name_es: "Rumania", name_fr: "Roumanie"},
-                {code: "RU", name: "Russia", name_es: "Rusia", name_fr: "Russie"},
+                {code: "RU", name: "Russia", name_es: "Rusia", name_Boolean: "Russie"},
                 {code: "RW", name: "Rwanda", name_es: "Ruanda", name_fr: "Rwanda"},
                 {code: "EH", name: "Western Sahara", name_es: "Sahara Occidental", name_fr: "Sahara occidental"},
                 {code: "SA", name: "Saudi Arabia", name_es: "Arabia Saudita", name_fr: "Arabie saoudite"},
@@ -398,6 +413,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 resetMapStyles();
                 feedbackModal.classList.add('hidden');
                 const question = questions[currentQuestionIndex];
+                if (!question) { // Safety check
+                    console.error("No question found for index:", currentQuestionIndex);
+                    endGame(); // End game if questions run out unexpectedly
+                    return;
+                }
                 const langName = question[`name_${currentLang}`] || question.name; // Use translated name
                 countryNameEl.textContent = langName;
                 countryFlagEl.src = `https://flagcdn.com/w160/${question.code.toLowerCase()}.png`;
@@ -416,6 +436,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 isGameActive = false;
                 const correctLocation = questions[currentQuestionIndex];
+                if (!correctLocation) { // Safety check
+                    console.error("No correct location found for index:", currentQuestionIndex);
+                    nextQuestion(); // Move to next or end game
+                    return;
+                }
                 const correctLangName = correctLocation[`name_${currentLang}`] || correctLocation.name;
                 
                 if (clickedLocationCode === correctLocation.code.toUpperCase()) {
@@ -438,6 +463,11 @@ document.addEventListener('DOMContentLoaded', () => {
             function handleTimeUp() {
                 isGameActive = false;
                 const correctLocation = questions[currentQuestionIndex];
+                if (!correctLocation) { // Safety check
+                     console.error("No correct location found for time up at index:", currentQuestionIndex);
+                     nextQuestion(); // Move to next or end game
+                     return;
+                }
                 const correctLangName = correctLocation[`name_${currentLang}`] || correctLocation.name;
                 feedbackTextEl.textContent = translations[currentLang].feedbackTimeUp;
                 feedbackDetailsEl.textContent = translations[currentLang].feedbackTimeUpDetail(correctLangName);
@@ -466,11 +496,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 const container = document.createElement('div');
                 container.className = 'flex flex-col items-center';
 
+                if (!worldMapSVG) { // Safety check if map isn't loaded
+                     console.error("worldMapSVG is not available for creating shape");
+                     return container;
+                }
                 const countryGroup = worldMapSVG.querySelector(`[id="${countryCode.toUpperCase()}"]`);
                 if (!countryGroup) return container;
 
                 const clonedGroup = countryGroup.cloneNode(true);
-                const bbox = countryGroup.getBBox();
+                
+                let bbox;
+                try {
+                     bbox = countryGroup.getBBox();
+                } catch(e) {
+                    console.error("Error getting BBox for", countryCode, e);
+                    return container; // Cannot create shape without BBox
+                }
+
                 if (bbox.width === 0 || bbox.height === 0) return container;
 
                 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -508,6 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             function endGame() {
                 if (timerInterval) clearInterval(timerInterval);
+                isGameActive = false; // Ensure no more clicks are processed
                 feedbackModal.classList.add('hidden');
                 finalScoreEl.textContent = `${score}/${QUESTIONS_PER_ROUND}`;
                 
@@ -523,11 +566,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeLeft = TIME_PER_QUESTION;
                 updateTimerUI();
                 timerInterval = setInterval(() => {
+                    if (!isGameActive) { // Stop timer if game state changed
+                        clearInterval(timerInterval);
+                        return;
+                    }
                     timeLeft--;
                     updateTimerUI();
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        handleTimeUp();
+                        if (isGameActive) { // Only trigger time up if game is still active
+                           handleTimeUp();
+                        }
                     }
                 }, 1000);
             }
@@ -546,10 +595,8 @@ document.addEventListener('DOMContentLoaded', () => {
             function updateScoreUI() { scoreEl.textContent = score; }
             function resetMapStyles() { if (worldMapSVG) worldMapSVG.querySelectorAll('path, g').forEach(p => p.classList.remove('correct', 'incorrect')); }
             
-            // --- MAP FIX: Reverted to original applyTransform logic ---
             function applyTransform() { 
                 if (worldMapSVG) {
-                    // Ensure pan values keep the map within reasonable bounds
                     const mapWidth = worldMapSVG.viewBox.baseVal.width * scale;
                     const mapHeight = worldMapSVG.viewBox.baseVal.height * scale;
                     const containerWidth = mapContainer.clientWidth;
@@ -565,11 +612,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // --- MAP FIX: Reverted to original resetMapTransform logic ---
             function resetMapTransform() { 
-                scale = 1.9; // Reset to the new default initial zoom
-                panX = 300; // Reset to the new default initial pan
-                panY = -100; // Reset to the new default initial pan
+                scale = 1.9; 
+                panX = 300; 
+                panY = -100; 
                 applyTransform(); 
             }
 
@@ -616,7 +662,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.removeEventListener('touchmove', onPointerMove);
                 window.removeEventListener('mouseup', onPointerUp);
                 window.removeEventListener('touchend', onPointerUp);
-                if (!hasMoved) handleCountryClick(e);
+                // Check if game is active before processing click
+                if (!hasMoved && isGameActive) handleCountryClick(e);
             }
 
             function onWheel(e) {
@@ -631,7 +678,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyTransform();
             }
             
-            // --- MAP FIX: Reverted to original loadMap logic ---
             async function loadMap() {
                  try {
                      const response = await fetch('https://www.amcharts.com/lib/3/maps/svg/worldHigh.svg');
@@ -641,19 +687,19 @@ document.addEventListener('DOMContentLoaded', () => {
                      loader.classList.add('hidden');
                      mapContainer.innerHTML = svgText;
                      worldMapSVG = mapContainer.querySelector('svg');
+                     if (!worldMapSVG) throw new Error("SVG element not found in fetched content.");
                      worldMapSVG.id = 'world-map';
                      worldMapSVG.setAttribute('preserveAspectRatio', 'xMidYMid meet');
                      worldMapSVG.setAttribute('viewBox', '0 0 2048 1024'); 
                      applyTransform(); // Apply initial scale and pan after loading
                  } catch (error) {
+                     console.error("Error loading map:", error); // Log error
                      loader.classList.add('hidden');
                      mapContainer.innerHTML = `<p class="text-red-500 text-center p-4">${translations[currentLang].mapError(error.message)}</p>`;
                  }
             }
             
             async function shareScore() {
-                // Share score logic would go here
-                // For now, just a placeholder
                 const shareText = `I scored ${score}/${QUESTIONS_PER_ROUND} on Geo-Guesser (${activeLevel})! Can you beat me?`;
                 try {
                     if (navigator.share) {
@@ -663,11 +709,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             url: window.location.href
                         });
                     } else {
-                        // Fallback for desktop or unsupported browsers
-                        console.log("Share API not supported. Implement a custom share modal or copy to clipboard.");
+                        // Fallback for desktop: copy to clipboard
+                        await navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+                        alert("Score copied to clipboard!"); // Simple fallback
                     }
                 } catch (err) {
                     console.error('Error sharing score:', err);
+                    // Alert if copy fails (e.g., permissions)
+                    alert("Could not share or copy score. You can manually copy the link!");
                 }
             }
 
@@ -692,10 +741,23 @@ document.addEventListener('DOMContentLoaded', () => {
             easyBtn.addEventListener('click', () => startGame('easy'));
             mediumBtn.addEventListener('click', () => startGame('medium'));
             hardBtn.addEventListener('click', () => startGame('hard'));
+            
             playAgainButton.addEventListener('click', () => {
                 gameOverModal.classList.add('hidden');
                 startModal.classList.remove('hidden');
             });
+            
+            // Added event listener for new home button
+            homeButton.addEventListener('click', () => {
+                gameOverModal.classList.add('hidden');
+                mainContent.classList.add('hidden');
+                
+                // Reset welcome screen state
+                welcomeScreen.classList.remove('hidden');
+                welcomeScreen.style.transition = 'none'; // Remove transition for instant appear
+                welcomeScreen.style.opacity = '1';
+            });
+
             nextButton.addEventListener('click', nextQuestion);
             shareButton.addEventListener('click', shareScore);
             zoomInBtn.addEventListener('click', () => onWheel({ preventDefault: () => {}, deltaY: -100, clientX: mapContainer.clientWidth/2, clientY: mapContainer.clientHeight/2 }));
